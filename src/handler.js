@@ -33,8 +33,6 @@ const addBookHandler = (request, h) => {
     updatedAt,
   };
 
-  books.push(newBook);
-
   if (newBook.name === undefined) {
     const response = h.response({
       status: 'fail',
@@ -53,6 +51,8 @@ const addBookHandler = (request, h) => {
     response.code(400);
     return response;
   }
+
+  books.push(newBook);
 
   const isSuccess = books.filter((book) => book.id === id).length > 0;
   if (isSuccess) {
@@ -92,14 +92,12 @@ const getBookByIdHandler = (request, h) => {
   const book = books.filter((i) => i.id === id)[0];
 
   if (book !== undefined) {
-    const response = h.response({
+    return {
       status: 'success',
       data: {
         book,
       },
-    });
-    response.code(200);
-    return response;
+    };
   }
 
   const response = h.response({
@@ -126,20 +124,9 @@ const editBookByIdHandler = (request, h) => {
 
   const updatedAt = new Date().toISOString();
   const index = books.findIndex((book) => book.id === id);
+  const finished = pageCount === readPage;
 
-  const updatedBook = {
-    name,
-    year,
-    author,
-    summary,
-    publisher,
-    pageCount,
-    readPage,
-    reading,
-    updatedAt,
-  };
-
-  if (updatedBook.name === undefined) {
+  if (name === undefined) {
     const response = h.response({
       status: 'fail',
       message: 'Gagal memperbarui buku. Mohon isi nama buku',
@@ -148,7 +135,7 @@ const editBookByIdHandler = (request, h) => {
     return response;
   }
 
-  if (updatedBook.readPage > updatedBook.pageCount) {
+  if (readPage > pageCount) {
     const response = h.response({
       status: 'fail',
       message:
@@ -161,7 +148,16 @@ const editBookByIdHandler = (request, h) => {
   if (index !== -1) {
     books[index] = {
       ...books[index],
-      updatedBook,
+      name,
+      year,
+      author,
+      summary,
+      publisher,
+      pageCount,
+      readPage,
+      finished,
+      reading,
+      updatedAt,
     };
 
     const response = h.response({
